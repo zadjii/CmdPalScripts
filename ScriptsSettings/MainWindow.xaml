@@ -54,6 +54,43 @@
                             Margin="12,0,0,6"/>
                     </Grid>
                 </DataTemplate>
+
+
+                <DataTemplate 
+                    x:Key="ScriptListViewTemplate" 
+                    x:DataType="ext:ScriptMetadata">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!--<FontIcon
+                            Grid.RowSpan="2"
+                            Width="32"
+                            Height="32"
+                            Margin="6"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Glyph="📁"
+                            FontFamily="Segoe UI Emoji"
+                            Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}" />-->
+                        <TextBlock Grid.Column="1"
+                            Text="{x:Bind Title, Mode=OneWay}"
+                            x:Phase="1"
+                            Style="{ThemeResource BaseTextBlockStyle}"
+                            Margin="12,6,0,0"/>
+                        <TextBlock  Grid.Column="1"
+                            Grid.Row="1"
+                            Text="{x:Bind Description}"
+                            x:Phase="2"
+                            Style="{ThemeResource BodyTextBlockStyle}"
+                            Margin="12,0,0,6"/>
+                    </Grid>
+                </DataTemplate>
             </ResourceDictionary>
         </Grid.Resources>
         
@@ -62,6 +99,13 @@
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
 
+        <StackPanel Grid.Column="0" Margin="20" VerticalAlignment="Stretch">
+            <TextBlock Text="Commands" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
+            <!--<Button Content="Add directory" Width="150" Height="40" Margin="0,0,0,20"/>-->
+            <ListView 
+                      ItemsSource="{x:Bind ViewModel.Commands, Mode=OneWay}"
+                      ItemTemplate="{StaticResource ScriptListViewTemplate}"/>
+        </StackPanel>
         <StackPanel Grid.Column="1" Margin="20" VerticalAlignment="Stretch">
             <TextBlock Text="Directories" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
             <Button Content="Add directory" Width="150" Height="40" Margin="0,0,0,20"/>

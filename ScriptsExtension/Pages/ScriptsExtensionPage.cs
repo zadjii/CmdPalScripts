@@ -2,9 +2,7 @@
 // Mike Griese licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.CommandPalette.Extensions;
@@ -28,69 +26,13 @@ internal sealed partial class ScriptsExtensionPage : ListPage
 
     public override IListItem[] GetItems()
     {
-        var files = GetScriptFiles(_settings.ScriptsPath);
-        var metadata = GetAllScriptMetadata(files, _settings);
+        _settings.LoadAll();
 
-        var commandItems = GetAllCommandItems(metadata.OrderBy(m => m.PackageName), _settings);
+        var commandItems = GetAllCommandItems(_settings.Scripts, _settings);
 
         return commandItems.ToArray();
     }
 
-    private static string[] GetScriptFiles(string scriptsPath)
-    {
-        if (string.IsNullOrEmpty(scriptsPath) || !Directory.Exists(scriptsPath))
-        {
-            return Array.Empty<string>();
-        }
-
-        // Get all script files in the directory and subdirectories
-        // We are looking for .sh, .ps1, and .py files
-        if (!Directory.Exists(scriptsPath))
-        {
-            return Array.Empty<string>();
-        }
-
-        var files = Directory.GetFiles(scriptsPath, "*.*", SearchOption.AllDirectories)
-            .Where(f => f.EndsWith(".sh", StringComparison.OrdinalIgnoreCase) ||
-                        f.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) ||
-                        f.EndsWith(".py", StringComparison.OrdinalIgnoreCase))
-            .ToArray();
-
-        return files;
-    }
-
-    private static ScriptMetadata? GetScriptMetadata(string scriptFile)
-    {
-        if (string.IsNullOrEmpty(scriptFile) || !File.Exists(scriptFile))
-        {
-            return null;
-        }
-
-        var ext = Path.GetExtension(scriptFile).ToLowerInvariant();
-        return ext switch
-        {
-            ".sh" => ScriptMetadata.FromBash(scriptFile),
-            ".ps1" => ScriptMetadata.FromPowershell(scriptFile),
-            ".py" => ScriptMetadata.FromPython(scriptFile),
-            _ => null,
-        };
-    }
-
-    private static ScriptMetadata[] GetAllScriptMetadata(string[] scriptFiles, Settings settings)
-    {
-        List<ScriptMetadata> metadataList = new();
-
-        foreach (var scriptFile in scriptFiles)
-        {
-            var metadata = GetScriptMetadata(scriptFile);
-            if (metadata != null)
-            {
-                metadataList.Add(metadata);
-            }
-        }
-
-        return metadataList.ToArray();
-    }
 
     private static ListItem[] GetAllCommandItems(IEnumerable<ScriptMetadata> metadata, Settings settings)
     {

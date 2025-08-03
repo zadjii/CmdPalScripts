@@ -22,7 +22,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
 
         _scriptSettings = ScriptsExtension.ScriptsExtensionCommandsProvider.ScriptSettings;
-
+        _scriptSettings.LoadAll();
         ViewModel = new(_scriptSettings);
     }
 }
@@ -32,6 +32,7 @@ public sealed class SettingsViewModel
     private readonly Settings _model;
 
     public ObservableCollection<ScriptDirectoryInfo> Directories => _model.Directories;
+    public ObservableCollection<ScriptMetadata> Commands => _model.Scripts;
 
     public SettingsViewModel(Settings settings)
     {
