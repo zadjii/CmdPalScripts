@@ -12,13 +12,14 @@ public partial class ScriptsExtensionCommandsProvider : CommandProvider
 {
     private readonly List<ICommandItem> _commands;
     private readonly ScriptsExtensionPage _scriptsPage;
+    public static Settings ScriptSettings { get; } = new();
 
     public ScriptsExtensionCommandsProvider()
     {
         DisplayName = "Scripts for Command Palette";
         Icon = Icons.Logo;
 
-        _scriptsPage = new ScriptsExtensionPage();
+        _scriptsPage = new ScriptsExtensionPage(ScriptSettings);
 
         _commands = [
             new CommandItem(_scriptsPage) { Title = "Script commands" },

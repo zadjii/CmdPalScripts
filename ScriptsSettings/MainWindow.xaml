@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ScriptsSettings"
+    xmlns:ext="using:ScriptsExtension"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -20,7 +21,7 @@
 
                 <DataTemplate 
                     x:Key="DirectoryListViewTemplate" 
-                    x:DataType="local:ScriptDirectoryInfo">
+                    x:DataType="ext:ScriptDirectoryInfo">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -65,7 +66,7 @@
             <TextBlock Text="Directories" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
             <Button Content="Add directory" Width="150" Height="40" Margin="0,0,0,20"/>
             <ListView Height="300" 
-                      ItemsSource="{x:Bind _directories, Mode=OneWay}"
+                      ItemsSource="{x:Bind ViewModel.Directories, Mode=OneWay}"
                       ItemTemplate="{StaticResource DirectoryListViewTemplate}"/>
         </StackPanel>
     </Grid>

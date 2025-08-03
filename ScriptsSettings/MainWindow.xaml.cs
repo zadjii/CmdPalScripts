@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.ObjectModel;
-using System.IO;
 using Microsoft.UI.Xaml;
+using ScriptsExtension;
 
 namespace ScriptsSettings;
 
@@ -14,21 +14,27 @@ namespace ScriptsSettings;
 public sealed partial class MainWindow : Window
 {
     private readonly ObservableCollection<ScriptDirectoryInfo> _directories = new();
+    private readonly Settings _scriptSettings;
+    public SettingsViewModel ViewModel { get; }
 
     public MainWindow()
     {
         InitializeComponent();
 
-        _directories.Add(new ScriptDirectoryInfo("d:\\dev\\script-commands-test\\windows-commands"));
+        _scriptSettings = ScriptsExtension.ScriptsExtensionCommandsProvider.ScriptSettings;
+
+        ViewModel = new(_scriptSettings);
     }
 }
 
-public sealed class ScriptDirectoryInfo
+public sealed class SettingsViewModel
 {
-    public string FullPath { get; set; }
-    public string PathName => Path.GetFileName(FullPath);
-    public ScriptDirectoryInfo(string fullPath)
+    private readonly Settings _model;
+
+    public ObservableCollection<ScriptDirectoryInfo> Directories => _model.Directories;
+
+    public SettingsViewModel(Settings settings)
     {
-        FullPath = fullPath;
+        _model = settings;
     }
 }
