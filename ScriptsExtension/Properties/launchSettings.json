@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ScriptsExtension (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "ScriptsExtension (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
