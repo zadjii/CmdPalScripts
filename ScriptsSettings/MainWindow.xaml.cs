@@ -16,7 +16,7 @@ namespace ScriptsSettings;
 public sealed partial class MainWindow : Window
 {
     private readonly ObservableCollection<ScriptDirectoryInfo> _directories = new();
-    private readonly Settings _scriptSettings;
+    private readonly SettingsModel _scriptSettings;
     public SettingsViewModel ViewModel { get; }
 
     public MainWindow()
@@ -109,12 +109,12 @@ public sealed partial class MainWindow : Window
 
 public sealed class SettingsViewModel
 {
-    private readonly Settings _model;
+    private readonly SettingsModel _model;
 
     public ObservableCollection<ScriptDirectoryInfo> Directories => _model.Directories;
     public ObservableCollection<ScriptMetadata> Commands => _model.Scripts;
 
-    public SettingsViewModel(Settings settings)
+    public SettingsViewModel(SettingsModel settings)
     {
         _model = settings;
     }

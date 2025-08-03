@@ -267,12 +267,12 @@ public sealed partial class ScriptMetadata
         return FromHashComments(bashFile, "bash");
     }
 
-    public ICommand ToCommand(Settings settings)
+    public ICommand ToCommand(SettingsModel settings)
     {
         return new DoScriptCommand(this, settings);
     }
 
-    public CommandResult InvokeWithArgs(object? sender, string[] args, Settings settings)
+    public CommandResult InvokeWithArgs(object? sender, string[] args, SettingsModel settings)
     {
         // Determine which exe to use to run this command
         string? exePath;

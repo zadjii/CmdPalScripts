@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Microsoft.CommandPalette.Extensions;
@@ -13,9 +14,9 @@ namespace ScriptsExtension;
 
 internal sealed partial class ScriptsExtensionPage : ListPage
 {
-    private readonly Settings _settings;
+    private readonly SettingsModel _settings;
 
-    public ScriptsExtensionPage(Settings settings)
+    public ScriptsExtensionPage(SettingsModel settings)
     {
         Icon = Icons.Logo;
         Title = "Scripts";
@@ -34,7 +35,7 @@ internal sealed partial class ScriptsExtensionPage : ListPage
     }
 
 
-    private static ListItem[] GetAllCommandItems(IEnumerable<ScriptMetadata> metadata, Settings settings)
+    private static ListItem[] GetAllCommandItems(IEnumerable<ScriptMetadata> metadata, SettingsModel settings)
     {
         List<ListItem> commandItems = new();
 
@@ -106,9 +107,9 @@ internal sealed partial class DoScriptCommand : InvokableCommand
 {
     private ScriptMetadata Metadata { get; }
 
-    private Settings Settings { get; }
+    private SettingsModel Settings { get; }
 
-    internal DoScriptCommand(ScriptMetadata metadata, Settings settings)
+    internal DoScriptCommand(ScriptMetadata metadata, SettingsModel settings)
     {
         Metadata = metadata;
         Settings = settings;
@@ -176,6 +177,8 @@ internal sealed partial class MarkdownPage : ContentPage
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "meh")]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(bool))]
+[JsonSerializable(typeof(SettingsModel))]
+[JsonSerializable(typeof(ObservableCollection<string>), TypeInfoPropertyName = "StringObservableCollection")]
 [JsonSerializable(typeof(List<string>), TypeInfoPropertyName = "StringList")]
 [JsonSerializable(typeof(ScriptArgument), TypeInfoPropertyName = "ScriptArgument")]
 [JsonSerializable(typeof(ScriptMetadata), TypeInfoPropertyName = "ScriptMetadata")]
