@@ -30,6 +30,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <FontIcon
                             Grid.RowSpan="2"
@@ -52,6 +53,21 @@
                             x:Phase="2"
                             Style="{ThemeResource BodyTextBlockStyle}"
                             Margin="12,0,0,6"/>
+                        <Button Grid.Column="2"
+                            Grid.RowSpan="2"
+                            Height="32"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Click="OpenDirectory_Click"
+                            ToolTipService.ToolTip="Open directory"
+                            Background="Transparent"
+                            BorderThickness="0">
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                Glyph="&#xE838;"
+                                FontSize="16"/>
+                        </Button>
                     </Grid>
                 </DataTemplate>
 
@@ -67,6 +83,8 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <!--<FontIcon
                             Grid.RowSpan="2"
@@ -89,6 +107,38 @@
                             x:Phase="2"
                             Style="{ThemeResource BodyTextBlockStyle}"
                             Margin="12,0,0,6"/>
+                        <Button Grid.Column="2"
+                            Grid.RowSpan="2"
+                            
+                            Height="32"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Click="OpenScriptFile_Click"
+                            ToolTipService.ToolTip="Open script file"
+                            Background="Transparent"
+                            BorderThickness="0">
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                Glyph="&#xE8E5;"
+                                FontSize="16"/>
+                        </Button>
+
+                        <Button Grid.Column="3"
+                            Grid.RowSpan="2"
+                            Height="32"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Click="OpenScriptDirectory_Click"
+                            ToolTipService.ToolTip="Open directory"
+                            Background="Transparent"
+                            BorderThickness="0">
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                Glyph="&#xE838;"
+                                FontSize="16"/>
+                        </Button>
                     </Grid>
                 </DataTemplate>
             </ResourceDictionary>
