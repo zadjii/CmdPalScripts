@@ -1,7 +1,8 @@
-// Copyright (c) Microsoft Corporation
-// The Microsoft Corporation licenses this file to you under the MIT license.
+// Copyright (c) Mike Griese
+// Mike Griese licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
@@ -9,20 +10,27 @@ namespace ScriptsExtension;
 
 public partial class ScriptsExtensionCommandsProvider : CommandProvider
 {
-    private readonly ICommandItem[] _commands;
+    private readonly List<ICommandItem> _commands;
+    private readonly ScriptsExtensionPage _scriptsPage;
 
     public ScriptsExtensionCommandsProvider()
     {
         DisplayName = "Scripts for Command Palette";
-        Icon = IconHelpers.FromRelativePath("Assets\\StoreLogo.png");
+        Icon = Icons.Logo;
+
+        _scriptsPage = new ScriptsExtensionPage();
+
         _commands = [
-            new CommandItem(new ScriptsExtensionPage()) { Title = DisplayName },
+            new CommandItem(_scriptsPage) { Title = "Script commands" },
         ];
     }
 
     public override ICommandItem[] TopLevelCommands()
     {
-        return _commands;
+        List<ICommandItem> commands = [.. _commands];
+        var topLevelScripts = _scriptsPage.GetItems();
+        commands.InsertRange(0, topLevelScripts);
+        return commands.ToArray();
     }
 
 }
