@@ -185,7 +185,11 @@ public sealed class SettingsViewModel
 public sealed class Package(string name, SettingsModel Model)
 {
     public string Name => name;
-    public ObservableCollection<ScriptMetadata> Commands { get; } = new ObservableCollection<ScriptMetadata>(Model.Scripts.Where(s => s.PackageName == name));
+    public ObservableCollection<ScriptMetadata> Commands
+    {
+        get;
+    }
+        = new ObservableCollection<ScriptMetadata>(Model.Scripts.Where(s => s.PackageName == name));
     public int NumCommands => Commands.Count;
 }
 

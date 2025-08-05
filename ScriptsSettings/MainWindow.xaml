@@ -147,23 +147,20 @@
                 </DataTemplate>
 
                 <DataTemplate x:Key="PackageTemplate" x:DataType="local:Package">
-                    <muxc:TreeViewItem ItemsSource="{x:Bind Commands, Mode=OneWay}">
-                        <controls:DataRow>
+                    <muxc:TreeViewItem ItemsSource="{x:Bind Commands, Mode=OneWay}" IsExpanded="True">
+                        <StackPanel>
                             <!--<TextBlock Text="{x:Bind Title}" />-->
                             <TextBlock Text="{x:Bind Name}" />
                             <TextBlock Text="" />
                             <!--<TextBlock Text="{x:Bind Description}" />-->
                             <TextBlock Text="{x:Bind NumCommands, Mode=OneWay}" />
-                        </controls:DataRow>
+                        </StackPanel>
                     </muxc:TreeViewItem>
                 </DataTemplate>
                 
                 <DataTemplate x:Key="ScriptTreeTemplate" x:DataType="ext:ScriptMetadata">
                     <muxc:TreeViewItem>
-                        <controls:DataRow>
-                            <TextBlock Text="{x:Bind Title}" />
-                            <TextBlock Text="{x:Bind Description}" />
-                        </controls:DataRow>
+                        <TextBlock Text="{x:Bind Title}" />
                     </muxc:TreeViewItem>
                 </DataTemplate>
 
@@ -190,28 +187,10 @@
                       ItemsSource="{x:Bind ViewModel.Commands, Mode=OneWay}"
                       ItemTemplate="{StaticResource ScriptListViewTemplate}"/>-->
 
-            <controls:HeaderedTreeView Grid.Row="1" 
+            <TreeView Grid.Row="1" 
                 ItemsSource="{x:Bind ViewModel.Packages, Mode=OneWay}" 
                 ItemTemplateSelector="{StaticResource PackageTreeTemplateSelector}">
-                <controls:HeaderedTreeView.Header>
-                    <controls:DataTable ColumnSpacing="8">
-                        <!--  In a Tree based DataTable, setting the first column to Auto will account for indentation in the Tree automatically  -->
-                        <!--<controls:DataColumn Content="Id"
-                                     DesiredWidth="Auto" />-->
-                        <controls:DataColumn MinWidth="120"
-                                     Content="Name" />
-                        <!--  Each column can be text or quickly customized by containing any content or restyled of course  -->
-                        <controls:DataColumn DesiredWidth="*">
-                            <TextBlock FontWeight="SemiBold"
-                               Text="Description" />
-                        </controls:DataColumn>
-                        <controls:DataColumn Content="Quantity"
-                                     DesiredWidth="100" />
-                    </controls:DataTable>
-                </controls:HeaderedTreeView.Header>
-                <!-- <controls:HeaderedTreeView.ItemTemplate>
-                </controls:HeaderedTreeView.ItemTemplate> -->
-            </controls:HeaderedTreeView>
+            </TreeView>
 
 
         </Grid>
