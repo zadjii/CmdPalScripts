@@ -158,7 +158,7 @@
         </StackPanel>
         <StackPanel Grid.Column="1" Margin="20" VerticalAlignment="Stretch">
             <TextBlock Text="Directories" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
-            <Button Content="Add directory" Width="150" Height="40" Margin="0,0,0,20"/>
+            <Button Content="Add directory" Width="150" Height="40" Margin="0,0,0,20" Click="AddDirectory_Click"/>
             <ListView Height="300" 
                       ItemsSource="{x:Bind ViewModel.Directories, Mode=OneWay}"
                       ItemTemplate="{StaticResource DirectoryListViewTemplate}"/>

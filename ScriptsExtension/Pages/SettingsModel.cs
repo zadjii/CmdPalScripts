@@ -47,7 +47,10 @@ public sealed class SettingsModel
     {
         FilePath = SettingsJsonPath();
     }
-    private SettingsModel() { }
+
+    [JsonConstructor]
+    internal SettingsModel() { }
+
     public void LoadAll()
     {
         Scripts.Clear();
@@ -140,7 +143,7 @@ public sealed class SettingsModel
             // Read the JSON content from the file
             var jsonContent = File.ReadAllText(FilePath);
 
-            var loaded = JsonSerializer.Deserialize<SettingsModel>(jsonContent, JsonSerializationContext.Default.Settings);
+            var loaded = JsonSerializer.Deserialize<SettingsModel>(jsonContent, JsonSerializationContext.Default.SettingsModel);
 
             Debug.WriteLine(loaded != null ? "Loaded settings file" : "Failed to parse");
 
@@ -164,7 +167,7 @@ public sealed class SettingsModel
         try
         {
             // Serialize the main dictionary to JSON and save it to the file
-            var settingsJson = JsonSerializer.Serialize(model, JsonSerializationContext.Default.Settings);
+            var settingsJson = JsonSerializer.Serialize(model, JsonSerializationContext.Default.SettingsModel);
 
             // Is it valid JSON?
             if (JsonNode.Parse(settingsJson) is JsonObject newSettings)
@@ -209,8 +212,10 @@ public sealed class SettingsModel
 
 public sealed class ScriptDirectoryInfo
 {
-    public string FullPath { get; set; }
+    public string FullPath { get; set; } = string.Empty;
+    [JsonIgnore]
     public string PathName => Path.GetFileName(FullPath);
+    public ScriptDirectoryInfo() { }
     public ScriptDirectoryInfo(string fullPath)
     {
         FullPath = fullPath;
