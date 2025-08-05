@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using ScriptsExtension;
 using Windows.Storage.Pickers;
 
@@ -158,10 +159,48 @@ public sealed class SettingsViewModel
     private readonly SettingsModel _model;
 
     public ObservableCollection<ScriptDirectoryInfo> Directories => _model.Directories;
-    public ObservableCollection<ScriptMetadata> Commands => _model.Scripts;
+    //public ObservableCollection<ScriptMetadata> Commands => _model.Scripts;
+    public ObservableCollection<Package> Packages { get; }
 
     public SettingsViewModel(SettingsModel settings)
     {
         _model = settings;
+
+        var names = _model.Scripts.Select(s => s.PackageName).ToHashSet();
+        Packages = new ObservableCollection<Package>(names.Select(n => new Package(n!, _model)));
+
+        _model.Scripts.CollectionChanged += (s, e) =>
+        {
+            // update Packages to match the change
+            var names = _model.Scripts.Select(s => s.PackageName).ToHashSet();
+            Packages.Clear();
+            foreach (var name in names)
+            {
+                Packages.Add(new Package(name!, _model));
+            }
+        };
+    }
+}
+
+public sealed class Package(string name, SettingsModel Model)
+{
+    public string Name => name;
+    public ObservableCollection<ScriptMetadata> Commands { get; } = new ObservableCollection<ScriptMetadata>(Model.Scripts.Where(s => s.PackageName == name));
+    public int NumCommands => Commands.Count;
+}
+
+public sealed partial class PackageTreeTemplateSelector : DataTemplateSelector
+{
+    public DataTemplate? PackageTemplate { get; set; }
+    public DataTemplate? CommandTemplate { get; set; }
+
+    protected override DataTemplate? SelectTemplateCore(object item, DependencyObject container)
+    {
+        return item switch
+        {
+            Package => PackageTemplate,
+            ScriptMetadata => CommandTemplate,
+            _ => base.SelectTemplateCore(item, container)
+        };
     }
 }

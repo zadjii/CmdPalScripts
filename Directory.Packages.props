@@ -13,5 +13,7 @@
     <PackageVersion Include="Shmuelie.WinRTServer" Version="2.1.1" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <PackageVersion Include="System.Text.Json" Version="9.0.5" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.2.250402" />
+    <PackageVersion Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" Version="0.1.250731-build.2197" />
   </ItemGroup>
 </Project>

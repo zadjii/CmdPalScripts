@@ -37,6 +37,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls"  />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ScriptsExtension\ScriptsExtension.csproj" />

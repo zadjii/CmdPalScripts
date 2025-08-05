@@ -5,6 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ScriptsSettings"
     xmlns:ext="using:ScriptsExtension"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+
+
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -141,6 +145,32 @@
                         </Button>
                     </Grid>
                 </DataTemplate>
+
+                <DataTemplate x:Key="PackageTemplate" x:DataType="local:Package">
+                    <muxc:TreeViewItem ItemsSource="{x:Bind Commands, Mode=OneWay}">
+                        <controls:DataRow>
+                            <!--<TextBlock Text="{x:Bind Title}" />-->
+                            <TextBlock Text="{x:Bind Name}" />
+                            <TextBlock Text="" />
+                            <!--<TextBlock Text="{x:Bind Description}" />-->
+                            <TextBlock Text="{x:Bind NumCommands, Mode=OneWay}" />
+                        </controls:DataRow>
+                    </muxc:TreeViewItem>
+                </DataTemplate>
+                
+                <DataTemplate x:Key="ScriptTreeTemplate" x:DataType="ext:ScriptMetadata">
+                    <muxc:TreeViewItem>
+                        <controls:DataRow>
+                            <TextBlock Text="{x:Bind Title}" />
+                            <TextBlock Text="{x:Bind Description}" />
+                        </controls:DataRow>
+                    </muxc:TreeViewItem>
+                </DataTemplate>
+
+                <local:PackageTreeTemplateSelector x:Key="PackageTreeTemplateSelector"
+                    PackageTemplate="{StaticResource PackageTemplate}"
+                    CommandTemplate="{StaticResource ScriptTreeTemplate}" />
+
             </ResourceDictionary>
         </Grid.Resources>
         
@@ -155,10 +185,35 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Text="Commands" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
-            <ListView Grid.Row="1" 
+            <!--<ListView Grid.Row="1" 
                       VerticalAlignment="Stretch"  
                       ItemsSource="{x:Bind ViewModel.Commands, Mode=OneWay}"
-                      ItemTemplate="{StaticResource ScriptListViewTemplate}"/>
+                      ItemTemplate="{StaticResource ScriptListViewTemplate}"/>-->
+
+            <controls:HeaderedTreeView Grid.Row="1" 
+                ItemsSource="{x:Bind ViewModel.Packages, Mode=OneWay}" 
+                ItemTemplateSelector="{StaticResource PackageTreeTemplateSelector}">
+                <controls:HeaderedTreeView.Header>
+                    <controls:DataTable ColumnSpacing="8">
+                        <!--  In a Tree based DataTable, setting the first column to Auto will account for indentation in the Tree automatically  -->
+                        <!--<controls:DataColumn Content="Id"
+                                     DesiredWidth="Auto" />-->
+                        <controls:DataColumn MinWidth="120"
+                                     Content="Name" />
+                        <!--  Each column can be text or quickly customized by containing any content or restyled of course  -->
+                        <controls:DataColumn DesiredWidth="*">
+                            <TextBlock FontWeight="SemiBold"
+                               Text="Description" />
+                        </controls:DataColumn>
+                        <controls:DataColumn Content="Quantity"
+                                     DesiredWidth="100" />
+                    </controls:DataTable>
+                </controls:HeaderedTreeView.Header>
+                <!-- <controls:HeaderedTreeView.ItemTemplate>
+                </controls:HeaderedTreeView.ItemTemplate> -->
+            </controls:HeaderedTreeView>
+
+
         </Grid>
         <StackPanel Grid.Column="1" Margin="20" VerticalAlignment="Stretch">
             <TextBlock Text="Directories" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
