@@ -27,7 +27,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
 
         _scriptSettings = ScriptsExtension.ScriptsExtensionCommandsProvider.ScriptSettings;
-        _scriptSettings.LoadAll();
+        DispatcherQueue.TryEnqueue(async () => await _scriptSettings.LoadAllAsync());
         ViewModel = new(_scriptSettings);
     }
 
@@ -141,7 +141,7 @@ public sealed partial class MainWindow : Window
                     SettingsModel.SaveSettings(_scriptSettings);
 
                     // Reload all scripts to include any from the new directory
-                    _scriptSettings.LoadAll();
+                    await _scriptSettings.LoadAllAsync();
                 }
             }
         }

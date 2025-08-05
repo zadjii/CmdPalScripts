@@ -27,7 +27,8 @@ internal sealed partial class ScriptsExtensionPage : ListPage
 
     public override IListItem[] GetItems()
     {
-        _settings.LoadAll();
+        var t = _settings.LoadAllAsync();
+        t.Wait();
 
         var commandItems = GetAllCommandItems(_settings.Scripts, _settings);
 

@@ -149,19 +149,24 @@
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Margin="20" VerticalAlignment="Stretch">
-            <TextBlock Text="Commands" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
-            <!--<Button Content="Add directory" Width="150" Height="40" Margin="0,0,0,20"/>-->
-            <ListView 
+        <Grid Grid.Column="0" Margin="20" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Commands" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
+            <ListView Grid.Row="1" 
+                      VerticalAlignment="Stretch"  
                       ItemsSource="{x:Bind ViewModel.Commands, Mode=OneWay}"
                       ItemTemplate="{StaticResource ScriptListViewTemplate}"/>
-        </StackPanel>
+        </Grid>
         <StackPanel Grid.Column="1" Margin="20" VerticalAlignment="Stretch">
             <TextBlock Text="Directories" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
             <Button Content="Add directory" Width="150" Height="40" Margin="0,0,0,20" Click="AddDirectory_Click"/>
-            <ListView Height="300" 
+            <ListView Height="300"
                       ItemsSource="{x:Bind ViewModel.Directories, Mode=OneWay}"
                       ItemTemplate="{StaticResource DirectoryListViewTemplate}"/>
+            <TextBlock Text="Directories will be watched for changes and hot-reloaded into Command Palette automatically" TextWrapping="WrapWholeWords" Margin="0,0,0,20"/>
         </StackPanel>
     </Grid>
 </Window>

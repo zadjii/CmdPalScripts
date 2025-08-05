@@ -23,7 +23,10 @@ public partial class ScriptsExtensionCommandsProvider : CommandProvider
     {
         DisplayName = "Scripts for Command Palette";
         Icon = Icons.Logo;
-        ScriptSettings.LoadAll();
+        
+        var t = ScriptSettings.LoadAllAsync();
+        t.Wait();
+
         _scriptsPage = new ScriptsExtensionPage(ScriptSettings);
 
         _commands = [

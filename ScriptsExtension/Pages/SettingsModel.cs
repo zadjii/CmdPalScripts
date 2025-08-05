@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace ScriptsExtension;
@@ -51,25 +52,26 @@ public sealed class SettingsModel
     [JsonConstructor]
     internal SettingsModel() { }
 
-    public void LoadAll()
+    public async Task LoadAllAsync()
     {
         Scripts.Clear();
 
         foreach (var dir in Directories)
         {
-            var files = GetScriptFiles(dir.FullPath);
+            var files = await GetScriptFiles(dir.FullPath);
 
-            var metadata = GetAllScriptMetadata(files, this);
+            var metadata = await GetAllScriptMetadata(files, this);
 
             foreach (var script in metadata.OrderBy(m => m.PackageName))
             {
                 Scripts.Add(script);
             }
         }
+
     }
 
 
-    private static string[] GetScriptFiles(string scriptsPath)
+    private static async Task<string[]> GetScriptFiles(string scriptsPath)
     {
         if (string.IsNullOrEmpty(scriptsPath) || !Directory.Exists(scriptsPath))
         {
@@ -83,16 +85,18 @@ public sealed class SettingsModel
             return Array.Empty<string>();
         }
 
-        var files = Directory.GetFiles(scriptsPath, "*.*", SearchOption.AllDirectories)
+        var files = await Task.Run(
+            () => Directory.GetFiles(scriptsPath, "*.*", SearchOption.AllDirectories)
             .Where(f => f.EndsWith(".sh", StringComparison.OrdinalIgnoreCase) ||
                         f.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase) ||
                         f.EndsWith(".py", StringComparison.OrdinalIgnoreCase))
-            .ToArray();
+            .ToArray()
+            );
 
         return files;
     }
 
-    private static ScriptMetadata? GetScriptMetadata(string scriptFile)
+    private static async Task<ScriptMetadata?> GetScriptMetadata(string scriptFile)
     {
         if (string.IsNullOrEmpty(scriptFile) || !File.Exists(scriptFile))
         {
@@ -100,23 +104,23 @@ public sealed class SettingsModel
         }
 
         var ext = Path.GetExtension(scriptFile).ToLowerInvariant();
-        return ext switch
+        return await Task.Run(() => ext switch
         {
             ".sh" => ScriptMetadata.FromBash(scriptFile),
             ".ps1" => ScriptMetadata.FromPowershell(scriptFile),
             ".py" => ScriptMetadata.FromPython(scriptFile),
             _ => null,
-        };
+        });
     }
 
-    private static ScriptMetadata[] GetAllScriptMetadata(string[] scriptFiles, SettingsModel settings)
+    private static async Task<ScriptMetadata[]> GetAllScriptMetadata(string[] scriptFiles, SettingsModel settings)
     {
         List<ScriptMetadata> metadataList = new();
 
         foreach (var scriptFile in scriptFiles)
         {
-            var metadata = GetScriptMetadata(scriptFile);
-            if (metadata != null)
+            var metadata = await GetScriptMetadata(scriptFile);
+            if (metadata != null && !string.IsNullOrEmpty(metadata.Title))
             {
                 metadataList.Add(metadata);
             }
