@@ -178,8 +178,7 @@
         </Grid.Resources>
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*" />
-            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="5*" />
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
 
@@ -225,17 +224,20 @@
             </ListView>
         </Grid>
         <StackPanel Grid.Column="1" Margin="20" VerticalAlignment="Stretch">
-            <TextBlock Text="Script Content" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
-            <ScrollViewer Height="400" ZoomMode="Disabled" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <TextBlock x:Name="ScriptContentTextBlock"
-                           FontFamily="Consolas, Courier New, monospace"
+
+            <!--<StackPanel Grid.Column="1" Margin="20" VerticalAlignment="Stretch">-->
+                <TextBlock Text="Script Content" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
+                <ScrollViewer Height="400" ZoomMode="Disabled" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="ScriptContentTextBlock"
+                           FontFamily="Cascadia Mono, Consolas, Courier New, monospace"
                            FontSize="12"
                            Text="Select a command to view its content"
+                           IsTextSelectionEnabled="True"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            TextWrapping="NoWrap"/>
-            </ScrollViewer>
-        </StackPanel>
-        <StackPanel Grid.Column="2" Margin="20" VerticalAlignment="Stretch">
+                </ScrollViewer>
+            <!--</StackPanel>-->
+
             <TextBlock Text="Directories" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                 <Button Content="Add directory" Width="150" Height="40" Margin="0,0,10,0" Click="AddDirectory_Click"/>
