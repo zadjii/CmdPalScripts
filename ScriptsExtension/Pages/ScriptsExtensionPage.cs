@@ -143,6 +143,41 @@ internal sealed partial class DoScriptListItem : ListItem
         args.Result = InvokeWithArgs(_metadata, [], _settings);
     }
 
+    /// <summary>
+    /// Executes a script process and captures its standard output.
+    /// </summary>
+    /// <param name="exePath">The executable path to run</param>
+    /// <param name="exeArgs">The arguments to pass to the executable</param>
+    /// <param name="workingDirectory">The working directory for the process</param>
+    /// <returns>The standard output from the process</returns>
+    private static string ExecuteScriptAndCaptureOutput(string exePath, string exeArgs, string workingDirectory)
+    {
+        using System.Diagnostics.Process process = new()
+        {
+            StartInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = exePath,
+                Arguments = exeArgs,
+                WorkingDirectory = workingDirectory,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            },
+        };
+
+        process.Start();
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+
+        if (!string.IsNullOrEmpty(output))
+        {
+            var lastLine = output.Split(ScriptMetadata.Separator, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+            return lastLine ?? string.Empty;
+        }
+
+        return output;
+    }
+
 
     public CommandResult InvokeWithArgs(ScriptMetadata script, string[] args, SettingsModel settings)
     {
@@ -185,13 +220,12 @@ internal sealed partial class DoScriptListItem : ListItem
             }
         }
 
-        // Run the script, in the directory that the script is in
-        //var scriptDirectory = Path.GetDirectoryName(ScriptFilePath);
-
         switch (script.Mode)
         {
             case ScriptMode.FullOutput:
-                // In `fullOutput` the entire output is presented on a separate view, similar to a terminal window. This is handy when your script generates output to consume.
+                // In `fullOutput` the entire output is presented on a separate
+                // view, similar to a terminal window. This is handy when your
+                // script generates output to consume.
                 ShellHelpers.OpenInShell(
                     exePath,
                     exeArgs,
@@ -201,99 +235,48 @@ internal sealed partial class DoScriptListItem : ListItem
                 return CommandResult.Dismiss();
             case ScriptMode.Compact:
                 {
-                    // In `compact` mode the last line of the standard output is shown in the toast
-
-                    // Start the process and capture the output
-                    System.Diagnostics.Process process = new()
-                    {
-                        StartInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = exePath,
-                            Arguments = exeArgs,
-                            WorkingDirectory = script.ActualScriptWorkingDir,
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                        },
-                    };
-                    process.Start();
-                    var output = process.StandardOutput.ReadToEnd();
-                    process.WaitForExit();
+                    // In `compact` mode the last line of the standard output is
+                    // shown in the toast
+                    var lastLine = ExecuteScriptAndCaptureOutput(exePath, exeArgs, script.ActualScriptWorkingDir);
 
                     // Show the last line of output in a toast
-                    if (!string.IsNullOrEmpty(output))
+                    if (!string.IsNullOrEmpty(lastLine))
                     {
-                        var lastLine = output.Split(ScriptMetadata.Separator, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-                        ToastStatusMessage toast = new(new StatusMessage() { Message = lastLine ?? "Script executed successfully." });
-                        toast.Show();
+                        var toast = new ToastArgs();
+                        toast.Result = CommandResult.KeepOpen();
+                        toast.Message = lastLine ?? "Script executed successfully.";
+                        return CommandResult.ShowToast(toast);
                     }
-
                     return CommandResult.KeepOpen();
+
                 }
 
             case ScriptMode.Silent:
                 {
-                    // In `silent` mode the last line (if exists) will be shown in overlaying HUD toast after Raycast window is closed
-
-                    // Start the process and capture the output
-                    System.Diagnostics.Process process = new()
-                    {
-                        StartInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = exePath,
-                            Arguments = exeArgs,
-                            WorkingDirectory = script.ActualScriptWorkingDir,
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                        },
-                    };
-                    process.Start();
-                    var output = process.StandardOutput.ReadToEnd();
-                    process.WaitForExit();
-                    string? lastLine = null;
-
-                    // Show the last line of output in a toast
-                    if (!string.IsNullOrEmpty(output))
-                    {
-                        lastLine = output.Split(ScriptMetadata.Separator, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-                    }
+                    // In `silent` mode the last line (if exists) will be shown
+                    // in overlaying HUD toast after Raycast window is closed
+                    var lastLine = ExecuteScriptAndCaptureOutput(exePath, exeArgs, script.ActualScriptWorkingDir);
 
                     return CommandResult.ShowToast(lastLine ?? "Script executed successfully.");
                 }
 
             case ScriptMode.Inline:
                 {
-                    // In `inline` mode, the first line of output will be directly shown in the command item and automatically refresh according to the specified `refreshTime`. Tip: Set your dashboard items as favorites via the action menu in Raycast.
-                    // TODO! **NOTE:** `refreshTime` parameter is required for `inline` mode. When not specified, `compact` mode will be used instead.
-
-                    // In `silent` mode the last line (if exists) will be shown in overlaying HUD toast after Raycast window is closed
-
-                    // Start the process and capture the output
-                    System.Diagnostics.Process process = new()
-                    {
-                        StartInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = exePath,
-                            Arguments = exeArgs,
-                            WorkingDirectory = script.ActualScriptWorkingDir,
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                        },
-                    };
-                    process.Start();
-                    process.WaitForExit();
-                    var output = process.StandardOutput.ReadToEnd();
+                    // In `inline` mode, the first line of output will be
+                    // directly shown in the command item and automatically
+                    // refresh according to the specified `refreshTime`. Tip:
+                    // Set your dashboard items as favorites via the action menu
+                    // in Raycast. TODO! **NOTE:** `refreshTime` parameter is
+                    // required for `inline` mode. When not specified, `compact`
+                    // mode will be used instead.
+                    var lastLine = ExecuteScriptAndCaptureOutput(exePath, exeArgs, script.ActualScriptWorkingDir);
 
                     // Show the last line of output in a toast
-                    if (!string.IsNullOrEmpty(output))
+                    if (!string.IsNullOrEmpty(lastLine))
                     {
-                        var lastLine = output.Split(ScriptMetadata.SeparatorArray, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
                         Subtitle = lastLine ?? string.Empty;
                     }
 
-                    // TODO!
                     return CommandResult.KeepOpen();
                 }
         }
@@ -307,7 +290,6 @@ internal sealed class InvokeRequestedArgs(ScriptMetadata Script, CommandResult? 
     public ScriptMetadata Script { get; set; } = Script;
     public CommandResult? Result { get; set; } = Result;
 }
-
 //[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "meh")]
 //internal sealed partial class DoScriptCommand : InvokableWithParams
 //{
