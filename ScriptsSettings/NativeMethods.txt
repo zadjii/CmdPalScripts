@@ -1,0 +1,15 @@
+SHDefExtractIcon
+GetIconInfo
+CreateCompatibleDC
+CreateCompatibleBitmap
+SelectObject
+DrawIconEx
+GetDIBits
+DeleteObject
+DeleteDC
+GetDC
+ReleaseDC
+BITMAPINFO
+BITMAPINFOHEADER
+ICONINFO
+HICON

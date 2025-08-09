@@ -39,6 +39,12 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls"  />
     <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.DataTable" />
+
+    <PackageReference Include="Microsoft.Windows.CsWin32">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ScriptsExtension\ScriptsExtension.csproj" />

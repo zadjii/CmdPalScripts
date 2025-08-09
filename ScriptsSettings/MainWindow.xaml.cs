@@ -152,6 +152,67 @@ public sealed partial class MainWindow : Window
             System.Diagnostics.Debug.WriteLine($"Failed to add directory: {ex.Message}");
         }
     }
+
+    private void DirectoriesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Show/hide the remove button based on whether a directory is selected
+        RemoveDirectoryButton.Visibility = DirectoriesListView.SelectedItem != null 
+            ? Visibility.Visible 
+            : Visibility.Collapsed;
+    }
+
+    private async void RemoveDirectory_Click(object sender, RoutedEventArgs e)
+    {
+        if (DirectoriesListView.SelectedItem is ScriptDirectoryInfo selectedDirectory)
+        {
+            try
+            {
+                // Remove the directory from the settings
+                _scriptSettings.Directories.Remove(selectedDirectory);
+
+                // Save the settings
+                SettingsModel.SaveSettings(_scriptSettings);
+
+                // Reload all scripts to remove any from the deleted directory
+                await _scriptSettings.LoadAllAsync();
+
+                // Clear the selection to hide the remove button
+                DirectoriesListView.SelectedItem = null;
+            }
+            catch (System.Exception ex)
+            {
+                // Handle error - could show a message dialog or log
+                System.Diagnostics.Debug.WriteLine($"Failed to remove directory: {ex.Message}");
+            }
+        }
+    }
+
+    private async void CommandsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (CommandsListView.SelectedItem is ScriptMetadata selectedScript)
+        {
+            try
+            {
+                if (File.Exists(selectedScript.ScriptFilePath))
+                {
+                    var content = await File.ReadAllTextAsync(selectedScript.ScriptFilePath);
+                    ScriptContentTextBlock.Text = content;
+                }
+                else
+                {
+                    ScriptContentTextBlock.Text = "Script file not found.";
+                }
+            }
+            catch (Exception ex)
+            {
+                ScriptContentTextBlock.Text = $"Error reading script file: {ex.Message}";
+            }
+        }
+        else
+        {
+            ScriptContentTextBlock.Text = "Select a command to view its content";
+        }
+    }
 }
 
 public sealed class SettingsViewModel
@@ -168,6 +229,12 @@ public sealed class SettingsViewModel
 
         var names = _model.Scripts.Select(s => s.PackageName).ToHashSet();
         Packages = new ObservableCollection<Package>(names.Select(n => new Package(n!, _model)));
+        
+        // Initialize package commands
+        foreach (var package in Packages)
+        {
+            package.UpdateCommands();
+        }
 
         _model.Scripts.CollectionChanged += (s, e) =>
         {
@@ -176,7 +243,9 @@ public sealed class SettingsViewModel
             Packages.Clear();
             foreach (var name in names)
             {
-                Packages.Add(new Package(name!, _model));
+                var package = new Package(name!, _model);
+                package.UpdateCommands();
+                Packages.Add(package);
             }
         };
     }
@@ -185,12 +254,17 @@ public sealed class SettingsViewModel
 public sealed class Package(string name, SettingsModel Model)
 {
     public string Name => name;
-    public ObservableCollection<ScriptMetadata> Commands
-    {
-        get;
-    }
-        = new ObservableCollection<ScriptMetadata>(Model.Scripts.Where(s => s.PackageName == name));
+    public ObservableCollection<ScriptMetadata> Commands { get; } = new();
     public int NumCommands => Commands.Count;
+
+    public void UpdateCommands()
+    {
+        Commands.Clear();
+        foreach (var script in Model.Scripts.Where(s => s.PackageName == name))
+        {
+            Commands.Add(script);
+        }
+    }
 }
 
 public sealed partial class PackageTreeTemplateSelector : DataTemplateSelector
