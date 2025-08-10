@@ -101,7 +101,6 @@ internal sealed partial class DoScriptCommand : InvokableCommand
         var args = new InvokeRequestedArgs(Metadata);
         InvokeRequested?.Invoke(this, args);
         return args.Result ?? CommandResult.KeepOpen();
-        //return Metadata.InvokeWithArgs(sender, [], Settings);
     }
 }
 
@@ -172,10 +171,30 @@ internal sealed partial class DoScriptListItem : ListItem
         if (!string.IsNullOrEmpty(output))
         {
             var lastLine = output.Split(ScriptMetadata.Separator, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+
+            lastLine = StripVTEscapeSequences(lastLine);
+            
             return lastLine ?? string.Empty;
         }
 
         return output;
+    }
+
+    /// <summary>
+    /// Strips VT escape sequences (ANSI escape codes) from the input text.
+    /// </summary>
+    /// <param name="text">The text to clean</param>
+    /// <returns>Text with VT escape sequences removed</returns>
+    private static string StripVTEscapeSequences(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+
+        // Remove ANSI escape sequences using regex
+        // Pattern matches: ESC[ followed by any number of digits, semicolons, and letters
+        return System.Text.RegularExpressions.Regex.Replace(text, @"\x1B\[[0-9;]*[a-zA-Z]", string.Empty);
     }
 
 
