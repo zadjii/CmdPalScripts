@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,10 +12,11 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Windows.Foundation;
 
 namespace ScriptsExtension;
 
-public sealed class SettingsModel
+public sealed partial class SettingsModel : IDisposable
 {
     // public string ScriptsPath { get; set; } = "d:\\dev\\script-commands-test\\windows-commands";
 
@@ -25,14 +25,34 @@ public sealed class SettingsModel
 
     public string BashPath { get; set; } = "wsl -- bash";
 
-    public ObservableCollection<ScriptDirectoryInfo> Directories { get; set; } = new()
+    public List<ScriptDirectoryInfo> Directories
     {
-        //new ScriptDirectoryInfo("d:\\dev\\script-commands-test\\windows-commands")
-    };
+        get => _directories;
+        set
+        {
+            if (_directories != value)
+            {
+                _directories = value;
+                RefreshFileWatchers();
+            }
+        }
+    }
+
+    private List<ScriptDirectoryInfo> _directories = new();
 
     [JsonIgnore]
-    public ObservableCollection<ScriptMetadata> Scripts { get; } = new();
+    public List<ScriptMetadata> Scripts { get; } = new();
 
+    [JsonIgnore]
+    private readonly List<FileSystemWatcher> _fileWatchers = new();
+
+
+    [JsonIgnore]
+    public bool Loaded { get; private set; }
+
+    public event TypedEventHandler<SettingsModel, object>? DirectoriesChanged;
+    public event TypedEventHandler<SettingsModel, object>? ScriptsChanged;
+    public event TypedEventHandler<SettingsModel, object>? SettingsLoadCompleted;
 
     internal static string SettingsJsonPath()
     {
@@ -54,7 +74,12 @@ public sealed class SettingsModel
 
     public async Task LoadAllAsync()
     {
+        DirectoriesChanged?.Invoke(this, EventArgs.Empty);
+
         Scripts.Clear();
+
+        // Dispose existing watchers before creating new ones
+        DisposeFileWatchers();
 
         foreach (var dir in Directories)
         {
@@ -66,8 +91,14 @@ public sealed class SettingsModel
             {
                 Scripts.Add(script);
             }
-        }
 
+            // Set up file watcher for this directory
+            SetupFileWatcher(dir.FullPath);
+
+            ScriptsChanged?.Invoke(this, EventArgs.Empty);
+        }
+        Loaded = true;
+        SettingsLoadCompleted?.Invoke(this, EventArgs.Empty);
     }
 
 
@@ -211,6 +242,163 @@ public sealed class SettingsModel
         }
     }
 
+    private void SetupFileWatcher(string directoryPath)
+    {
+        if (string.IsNullOrEmpty(directoryPath) || !Directory.Exists(directoryPath))
+        {
+            return;
+        }
+
+        var watcher = new FileSystemWatcher(directoryPath)
+        {
+            IncludeSubdirectories = true,
+            NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.CreationTime | NotifyFilters.LastWrite,
+            Filter = "*.*"
+        };
+
+        watcher.Created += OnFileChanged;
+        watcher.Deleted += OnFileChanged;
+        watcher.Renamed += OnFileRenamed;
+        watcher.Changed += OnFileChanged;
+
+        watcher.EnableRaisingEvents = true;
+        _fileWatchers.Add(watcher);
+    }
+
+    private async void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        try
+        {
+            var extension = Path.GetExtension(e.FullPath).ToLowerInvariant();
+
+            // Only process script files
+            if (extension != ".sh" && extension != ".ps1" && extension != ".py")
+            {
+                return;
+            }
+
+            // Verify the file is within one of our monitored directories
+            if (!IsFileInMonitoredDirectory(e.FullPath))
+            {
+                return;
+            }
+
+            if (e.ChangeType == WatcherChangeTypes.Created)
+            {
+                await AddScript(e.FullPath);
+            }
+            else if (e.ChangeType == WatcherChangeTypes.Deleted)
+            {
+                RemoveScript(e.FullPath);
+            }
+            else if (e.ChangeType == WatcherChangeTypes.Changed)
+            {
+                RemoveScript(e.FullPath);
+                await AddScript(e.FullPath);
+                SettingsLoadCompleted?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error handling file change event: {ex.Message}");
+        }
+    }
+
+    private async void OnFileRenamed(object sender, RenamedEventArgs e)
+    {
+        try
+        {
+            var oldExtension = Path.GetExtension(e.OldFullPath).ToLowerInvariant();
+            var newExtension = Path.GetExtension(e.FullPath).ToLowerInvariant();
+
+            // Remove old script if it was a script file and in monitored directory
+            if ((oldExtension == ".sh" || oldExtension == ".ps1" || oldExtension == ".py") &&
+                IsFileInMonitoredDirectory(e.OldFullPath))
+            {
+                RemoveScript(e.OldFullPath);
+            }
+
+            // Add new script if it's a script file and in monitored directory
+            if ((newExtension == ".sh" || newExtension == ".ps1" || newExtension == ".py") &&
+                IsFileInMonitoredDirectory(e.FullPath))
+            {
+                await AddScript(e.FullPath);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error handling file rename event: {ex.Message}");
+        }
+    }
+
+    private bool IsFileInMonitoredDirectory(string filePath)
+    {
+        return Directories.Any(dir =>
+            filePath.StartsWith(dir.FullPath, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task AddScript(string scriptPath)
+    {
+        var metadata = await GetScriptMetadata(scriptPath);
+        if (metadata != null && !string.IsNullOrEmpty(metadata.Title))
+        {
+            // Check if script already exists (avoid duplicates)
+            var existingScript = Scripts.FirstOrDefault(s => string.Equals(s.ScriptFilePath, scriptPath, StringComparison.OrdinalIgnoreCase));
+            if (existingScript == null)
+            {
+                // Find the correct position to insert to maintain sorted order
+                var insertIndex = Scripts.BinarySearch(metadata, Comparer<ScriptMetadata>.Create((a, b) =>
+                    string.Compare(a.PackageName, b.PackageName, StringComparison.OrdinalIgnoreCase)));
+
+                if (insertIndex < 0)
+                {
+                    insertIndex = ~insertIndex;
+                }
+
+                Scripts.Insert(insertIndex, metadata);
+                ScriptsChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    private void RemoveScript(string scriptPath)
+    {
+        var scriptToRemove = Scripts.FirstOrDefault(s => string.Equals(s.ScriptFilePath, scriptPath, StringComparison.OrdinalIgnoreCase));
+        if (scriptToRemove != null)
+        {
+            Scripts.Remove(scriptToRemove);
+            ScriptsChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void DisposeFileWatchers()
+    {
+        foreach (var watcher in _fileWatchers)
+        {
+            watcher.EnableRaisingEvents = false;
+            watcher.Created -= OnFileChanged;
+            watcher.Deleted -= OnFileChanged;
+            watcher.Renamed -= OnFileRenamed;
+            watcher.Changed -= OnFileChanged;
+            watcher.Dispose();
+        }
+        _fileWatchers.Clear();
+    }
+
+    private void RefreshFileWatchers()
+    {
+        DisposeFileWatchers();
+
+        foreach (var dir in Directories)
+        {
+            SetupFileWatcher(dir.FullPath);
+        }
+    }
+
+    public void Dispose()
+    {
+        DisposeFileWatchers();
+    }
 }
 
 

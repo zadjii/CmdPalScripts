@@ -29,8 +29,11 @@ internal sealed partial class ScriptsExtensionPage : ListPage
 
     public override IListItem[] GetItems()
     {
-        var t = _settings.LoadAllAsync();
-        t.Wait();
+        if (!_settings.Loaded)
+        {
+            var t = _settings.LoadAllAsync();
+            t.Wait();
+        }
 
         var commandItems = GetAllCommandItems(_settings.Scripts, _settings);
 
@@ -173,7 +176,7 @@ internal sealed partial class DoScriptListItem : ListItem
             var lastLine = output.Split(ScriptMetadata.Separator, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
 
             lastLine = StripVTEscapeSequences(lastLine);
-            
+
             return lastLine ?? string.Empty;
         }
 

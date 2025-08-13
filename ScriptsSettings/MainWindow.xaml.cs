@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using ScriptsExtension;
@@ -156,8 +157,8 @@ public sealed partial class MainWindow : Window
     private void DirectoriesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         // Show/hide the remove button based on whether a directory is selected
-        RemoveDirectoryButton.Visibility = DirectoriesListView.SelectedItem != null 
-            ? Visibility.Visible 
+        RemoveDirectoryButton.Visibility = DirectoriesListView.SelectedItem != null
+            ? Visibility.Visible
             : Visibility.Collapsed;
     }
 
@@ -218,36 +219,64 @@ public sealed partial class MainWindow : Window
 public sealed class SettingsViewModel
 {
     private readonly SettingsModel _model;
-
-    public ObservableCollection<ScriptDirectoryInfo> Directories => _model.Directories;
+    private readonly DispatcherQueue _dispatcher;
+    public ObservableCollection<ScriptDirectoryInfo> Directories { get; } // => _model.Directories;
     //public ObservableCollection<ScriptMetadata> Commands => _model.Scripts;
     public ObservableCollection<Package> Packages { get; }
 
     public SettingsViewModel(SettingsModel settings)
     {
         _model = settings;
+        _dispatcher = DispatcherQueue.GetForCurrentThread();
+        Directories = new ObservableCollection<ScriptDirectoryInfo>(_model.Directories);
 
         var names = _model.Scripts.Select(s => s.PackageName).ToHashSet();
         Packages = new ObservableCollection<Package>(names.Select(n => new Package(n!, _model)));
-        
+
         // Initialize package commands
         foreach (var package in Packages)
         {
             package.UpdateCommands();
         }
 
-        _model.Scripts.CollectionChanged += (s, e) =>
+        //_model.Scripts.CollectionChanged += (s, e) =>
+        _model.ScriptsChanged += (s, e) =>
         {
-            // update Packages to match the change
-            var names = _model.Scripts.Select(s => s.PackageName).ToHashSet();
-            Packages.Clear();
-            foreach (var name in names)
+            _dispatcher.TryEnqueue(() =>
             {
-                var package = new Package(name!, _model);
-                package.UpdateCommands();
-                Packages.Add(package);
-            }
+                UpdateScripts();
+            });
         };
+
+        _model.DirectoriesChanged += (s, e) =>
+        {
+            _dispatcher.TryEnqueue(() =>
+            {
+                UpdateDirectories();
+                UpdateScripts();
+            });
+        };
+    }
+
+    private void UpdateScripts()
+    {
+        // update Packages to match the change
+        var names = _model.Scripts.Select(s => s.PackageName).ToHashSet();
+        Packages.Clear();
+        foreach (var name in names)
+        {
+            var package = new Package(name!, _model);
+            package.UpdateCommands();
+            Packages.Add(package);
+        }
+    }
+    private void UpdateDirectories()
+    {
+        Directories.Clear();
+        foreach (var item in _model.Directories)
+        {
+            Directories.Add(item);
+        }
     }
 }
 

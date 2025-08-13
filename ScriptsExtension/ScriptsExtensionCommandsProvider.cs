@@ -23,7 +23,7 @@ public partial class ScriptsExtensionCommandsProvider : CommandProvider
     {
         DisplayName = "Scripts for Command Palette";
         Icon = Icons.Logo;
-        
+
         var t = ScriptSettings.LoadAllAsync();
         t.Wait();
 
@@ -32,6 +32,12 @@ public partial class ScriptsExtensionCommandsProvider : CommandProvider
         _commands = [
             new CommandItem(_scriptsPage) { Title = "Script commands" },
         ];
+
+
+        ScriptSettings.SettingsLoadCompleted += (s, e) =>
+        {
+            RaiseItemsChanged();
+        };
     }
 
     public override ICommandItem[] TopLevelCommands()
