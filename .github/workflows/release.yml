@@ -32,7 +32,8 @@ jobs:
         working-directory: "./"
         run: |
           $version = "${{github.ref_name}}.0" -replace '^${{ env.tag_prefix }}', ''
-          
+          pwd
+          gci
           $xmlFilePath = "ScriptSettings\Package.appxmanifest"
           [xml]$xml = Get-Content $xmlFilePath
           $xml.Package.Identity.Version = $version
