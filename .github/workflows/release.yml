@@ -51,7 +51,7 @@ jobs:
       - name: Move misx Packages
         run: |
           # Move the misx packages to one folder for signing
-          $msixs = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Recurse -File -Filter "*.msix" -exclude "Microsoft.WindowsAppRuntime.*.msix"
+          $msixs = Get-ChildItem -Path $Env:GITHUB_WORKSPACE -Recurse -File -Filter "ScriptSettings*.msix" -exclude "Microsoft.WindowsAppRuntime.*.msix"
 
           # write the path of each msix (relative to the git root)
           Write-Host "Found the following msix's:"
