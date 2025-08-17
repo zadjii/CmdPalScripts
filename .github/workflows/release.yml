@@ -2,8 +2,9 @@ name: Publish Extension
 
 on:
   push:
-    tags:
-      - "release/v*.*.*"
+    branches: [stable]
+    # tags:
+    #   - "release/v*.*.*"
 
 env:
   # project: CmdPalRandomDadJokeExtension
@@ -28,19 +29,19 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Update Version in manifest
-        working-directory: "./"
-        run: |
-          $version = "${{github.ref_name}}.0" -replace '^${{ env.tag_prefix }}', ''
-          $p = pwd
-          Write-Output "Current directory: $p"
-          $g = gci
-          Write-Output "Files in current directory: $g"
-          $xmlFilePath = "ScriptsSettings/Package.appxmanifest"
-          [xml]$xml = Get-Content $xmlFilePath
-          $xml.Package.Identity.Version = $version
-          $xml.Save($xmlFilePath)
-          Write-Output "Version updated to $version in $xmlFilePath"
+      # - name: Update Version in manifest
+      #   working-directory: "./"
+      #   run: |
+      #     $version = "${{github.ref_name}}.0" -replace '^${{ env.tag_prefix }}', ''
+      #     $p = pwd
+      #     Write-Output "Current directory: $p"
+      #     $g = gci
+      #     Write-Output "Files in current directory: $g"
+      #     $xmlFilePath = "ScriptsSettings/Package.appxmanifest"
+      #     [xml]$xml = Get-Content $xmlFilePath
+      #     $xml.Package.Identity.Version = $version
+      #     $xml.Save($xmlFilePath)
+      #     Write-Output "Version updated to $version in $xmlFilePath"
               
       - name: Build
         run: |
