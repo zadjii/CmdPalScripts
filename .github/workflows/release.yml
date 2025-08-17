@@ -36,7 +36,7 @@ jobs:
           Write-Output "Current directory: $p"
           $g = gci
           Write-Output "Files in current directory: $g"
-          $xmlFilePath = "ScriptSettings/Package.appxmanifest"
+          $xmlFilePath = "ScriptsSettings/Package.appxmanifest"
           [xml]$xml = Get-Content $xmlFilePath
           $xml.Package.Identity.Version = $version
           $xml.Save($xmlFilePath)
