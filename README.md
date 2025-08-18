@@ -1,4 +1,4 @@
-# Scripts for Command Palette
+# ![](./ScriptsSettings/Assets/StoreLogo.scale-100.png) Scripts for Command Palette
 
 This is an extension for the Command Palette that allows you to use your [script
 commands from Raycast](https://github.com/raycast/script-commands) in the
