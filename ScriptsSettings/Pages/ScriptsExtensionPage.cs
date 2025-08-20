@@ -4,14 +4,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.Json.Serialization;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using ScriptsSettings.Models;
 using Windows.Foundation;
 
-namespace ScriptsExtension;
+namespace ScriptsSettings.Pages;
 
 
 internal sealed partial class ScriptsExtensionPage : ListPage
@@ -188,7 +187,7 @@ internal sealed partial class DoScriptListItem : ListItem
     /// </summary>
     /// <param name="text">The text to clean</param>
     /// <returns>Text with VT escape sequences removed</returns>
-    private static string StripVTEscapeSequences(string text)
+    private static string? StripVTEscapeSequences(string? text)
     {
         if (string.IsNullOrEmpty(text))
         {
@@ -363,18 +362,4 @@ internal sealed partial class MarkdownPage : ContentPage
     }
 
     public override IContent[] GetContent() => [new MarkdownContent(_text)];
-}
-
-[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "meh")]
-[JsonSerializable(typeof(string))]
-[JsonSerializable(typeof(bool))]
-[JsonSerializable(typeof(SettingsModel))]
-[JsonSerializable(typeof(ObservableCollection<string>), TypeInfoPropertyName = "StringObservableCollection")]
-[JsonSerializable(typeof(List<string>), TypeInfoPropertyName = "StringList")]
-[JsonSerializable(typeof(ScriptArgument), TypeInfoPropertyName = "ScriptArgument")]
-[JsonSerializable(typeof(ScriptMetadata), TypeInfoPropertyName = "ScriptMetadata")]
-[JsonSerializable(typeof(DropdownItem), TypeInfoPropertyName = "DropdownItem")]
-[JsonSourceGenerationOptions(UseStringEnumConverter = true, WriteIndented = true, IncludeFields = true, PropertyNameCaseInsensitive = true, AllowTrailingCommas = true)]
-internal sealed partial class JsonSerializationContext : JsonSerializerContext
-{
 }

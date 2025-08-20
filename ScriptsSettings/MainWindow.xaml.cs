@@ -10,7 +10,7 @@ using System.Linq;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using ScriptsExtension;
+using ScriptsSettings.Models;
 using Windows.Storage.Pickers;
 
 namespace ScriptsSettings;
@@ -28,7 +28,7 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
 
-        _scriptSettings = ScriptsExtension.ScriptsExtensionCommandsProvider.ScriptSettings;
+        _scriptSettings = ScriptsExtensionCommandsProvider.ScriptSettings;
         DispatcherQueue.TryEnqueue(async () => await _scriptSettings.LoadAllAsync());
         ViewModel = new(_scriptSettings);
     }

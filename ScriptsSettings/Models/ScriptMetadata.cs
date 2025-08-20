@@ -3,12 +3,16 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using ScriptsSettings.Pages;
 
-namespace ScriptsExtension;
+namespace ScriptsSettings.Models;
 
 public sealed partial class ScriptMetadata
 {
@@ -281,4 +285,19 @@ public enum ScriptMode
     Compact,
     Silent,
     Inline,
+}
+
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "meh")]
+[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(bool))]
+[JsonSerializable(typeof(SettingsModel))]
+[JsonSerializable(typeof(ObservableCollection<string>), TypeInfoPropertyName = "StringObservableCollection")]
+[JsonSerializable(typeof(List<string>), TypeInfoPropertyName = "StringList")]
+[JsonSerializable(typeof(ScriptArgument), TypeInfoPropertyName = "ScriptArgument")]
+[JsonSerializable(typeof(ScriptMetadata), TypeInfoPropertyName = "ScriptMetadata")]
+[JsonSerializable(typeof(DropdownItem), TypeInfoPropertyName = "DropdownItem")]
+[JsonSourceGenerationOptions(UseStringEnumConverter = true, WriteIndented = true, IncludeFields = true, PropertyNameCaseInsensitive = true, AllowTrailingCommas = true)]
+internal sealed partial class JsonSerializationContext : JsonSerializerContext
+{
 }

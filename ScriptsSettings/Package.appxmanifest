@@ -47,7 +47,7 @@
       <Extensions>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="ScriptsExtension.exe" Arguments="-RegisterProcessAsComServer" DisplayName="Scripts for Command Palette">
+            <com:ExeServer Executable="ScriptsSettings.exe" Arguments="-RegisterProcessAsComServer" DisplayName="Scripts for Command Palette">
               <com:Class Id="fad43fd6-b134-45cb-9b76-8c3a98097e51" DisplayName="Scripts for Command Palette" />
             </com:ExeServer>
           </com:ComServer>

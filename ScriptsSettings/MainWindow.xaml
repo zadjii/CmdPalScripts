@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ScriptsSettings"
-    xmlns:ext="using:ScriptsExtension"
+    xmlns:models="using:ScriptsSettings.Models"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 
@@ -30,7 +30,7 @@
 
                 <DataTemplate
                     x:Key="DirectoryListViewTemplate" 
-                    x:DataType="ext:ScriptDirectoryInfo">
+                    x:DataType="models:ScriptDirectoryInfo">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -83,7 +83,7 @@
 
                 <DataTemplate 
                     x:Key="ScriptListViewTemplate" 
-                    x:DataType="ext:ScriptMetadata">
+                    x:DataType="models:ScriptMetadata">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -163,8 +163,8 @@
                         </StackPanel>
                     </muxc:TreeViewItem>
                 </DataTemplate>
-                
-                <DataTemplate x:Key="ScriptTreeTemplate" x:DataType="ext:ScriptMetadata">
+
+                <DataTemplate x:Key="ScriptTreeTemplate" x:DataType="models:ScriptMetadata">
                     <muxc:TreeViewItem>
                         <TextBlock Text="{x:Bind Title}" />
                     </muxc:TreeViewItem>

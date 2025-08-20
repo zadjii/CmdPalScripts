@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.CommandPalette.Extensions;
 
-namespace ScriptsExtension;
+namespace ScriptsSettings;
 
 [Guid("fad43fd6-b134-45cb-9b76-8c3a98097e51")]
 public sealed partial class ScriptsExtension : IExtension, IDisposable

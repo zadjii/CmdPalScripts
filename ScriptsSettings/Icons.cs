@@ -4,7 +4,7 @@
 
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace ScriptsExtension;
+namespace ScriptsSettings;
 
 internal sealed class Icons
 {

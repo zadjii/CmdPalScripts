@@ -5,8 +5,10 @@
 using System.Collections.Generic;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using ScriptsSettings.Models;
+using ScriptsSettings.Pages;
 
-namespace ScriptsExtension;
+namespace ScriptsSettings;
 
 public partial class ScriptsExtensionCommandsProvider : CommandProvider
 {

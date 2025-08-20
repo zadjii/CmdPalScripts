@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
-namespace ScriptsExtension;
+namespace ScriptsSettings.Models;
 
 public sealed partial class SettingsModel : IDisposable
 {
